@@ -32,20 +32,6 @@ void print_2d_array(T** arr, int rows, int cols)
     }
 }
 
-
-template <typename T>
-void add_new_line(T**& arr, int &rows, T* line) {
-    T** new_arr = new T * [rows + 1];
-    for (size_t i = 0; i < rows; i++)
-    {
-        new_arr[i] = arr[i];
-    }
-    new_arr[rows] = line;
-    delete[] arr;
-    arr = new_arr;
-    rows++;
-}
-
 template <typename T>
 void delete_2d_array(T** arr, int rows)
 {
@@ -56,54 +42,55 @@ void delete_2d_array(T** arr, int rows)
     delete[] arr;
 }
 
-template <typename T>  
-void add_row_sum(T**& arr, int &rows, int cols) {  
-   int temp = 0;  
-   T* new_line = new T[cols];  
-   for (size_t i = 0; i < cols; i++) {  
-       new_line[i] = 0;  
-   }  
-   for (size_t i = 0; i < rows - 1; i++) {  
-       for (int j = cols - 1; j >= 0; j--) {  
-		   int sum = arr[i][j] + arr[i + 1][j] + temp;
-		   temp = sum / 10;
-		   if (sum > 9) {
-			   sum = sum % 10;
-           }
-           
-		   new_line[j] = sum;
-       }  
-   }  
-   add_new_line<int>(arr, rows, new_line);  
+template <typename T>
+void insert_column(T** &arr, int rows, int &cols, int pos, T* column)
+{
+	T** new_arr = new T*[rows];
+    for (size_t i = 0; i < rows; i++)
+    {
+        new_arr[i] = new T[cols+1];
+        for (size_t j = 0; j < pos; j++)
+        {
+			new_arr[i][j] = arr[i][j];
+        }
+		new_arr[i][pos] = column[i];
+        for (size_t j = pos; j < cols; j++)
+        {
+            new_arr[i][j + 1] = arr[i][j];
+        }
+    }
+    cols++;
+	delete_2d_array(arr, rows);
+	arr = new_arr;
 }
 
 int main()
 {
     srand(static_cast<unsigned int>(time(0)));
+    int cols, rows, pos;
 
-    int rows = 2;
-    int cols = 3;
-    // int** arr = create_2d_array<int>(rows, cols);
-    int** arr = new int* [rows];
-    for (int i = 0; i < rows; ++i) {
-        arr[i] = new int[cols];
+	cout << "Enter the number of rows: ";
+	cin >> rows;
+	cout << "Enter the number of columns: ";
+	cin >> cols;
+
+	int** arr = create_2d_array<int>(rows, cols);
+
+	print_2d_array(arr, rows, cols);
+	
+	cout << "Enter the position to insert a column: ";
+	cin >> pos;
+
+	int* column = new int[rows];
+	cout << "Enter the element of the column: ";
+    for (size_t i = 0; i < rows; i++) {
+		cin >> column[i];
     }
-	arr[0][0] = 1;
-	arr[0][1] = 2;
-	arr[0][2] = 8;
-	arr[1][0] = 4;
-	arr[1][1] = 5;
-	arr[1][2] = 8;
 
+    insert_column(arr, rows, cols, pos, column);
+    print_2d_array(arr, rows, cols);
 
-    print_2d_array<int>(arr, rows, cols);
-
-    system("pause");
-
-    add_row_sum(arr, rows, cols);
-    print_2d_array<int>(arr, rows, cols);
-
-    delete_2d_array<int>(arr, rows);
-
+    delete[] column;
+    delete_2d_array(arr, rows);
     return 0;
 }
